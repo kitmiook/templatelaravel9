@@ -1,0 +1,44 @@
+<?php
+
+declare(strict_types=1);
+
+/*
+|--------------------------------------------------------------------------
+| Test Case
+|--------------------------------------------------------------------------
+|
+| The closure you provide to your test functions is always bound to a specific PHPUnit test
+| case class. By default, that class is "PHPUnit\Framework\TestCase". Of course, you may
+| need to change it using the "uses()" function to bind a different classes or traits.
+|
+*/
+
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
+use Illuminate\Validation\ValidationException;
+use Ramsey\Uuid\Uuid;
+use Tests\DuskTestCase;
+use Tests\TestCase;
+
+uses(TestCase::class)->in('Analysis');
+uses(TestCase::class, LazilyRefreshDatabase::class)->in('Feature');
+uses(DuskTestCase::class, LazilyRefreshDatabase::class)->group('e2e')->in('Browser');
+
+/*
+|--------------------------------------------------------------------------
+| Expectations
+|--------------------------------------------------------------------------
+|
+| When you're writing tests, you often need to check that values meet certain conditions. The
+| "expect()" function gives you access to a set of "expectations" methods that you can use
+| to assert different things. Of course, you may extend the Expectation API at any time.
+|
+*/
+
+expect()->extend('toBeOne', function () {
+    return $this->toBe(1);
+});
+
+expect()->extend('toBeUuid', function () {
+    expect((string) $this->value)->toMatch('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/');
+    expect(Uuid::isValid((string) $this->value))->toBeTrue();
+});
